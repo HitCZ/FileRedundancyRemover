@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FileRedundancyRemoverTests
 {
@@ -49,6 +50,9 @@ namespace FileRedundancyRemoverTests
         {
             fileManager.RemoveRedundantFoldersFromTarget(sourceDirectory.GetDirectories(), targetDirectory.GetDirectories());
 
+            if (!targetDirectory.GetDirectories().Any())
+                Assert.Fail();
+
             var expectedLength = 1;
             var actualLength = targetDirectory.GetDirectories().Length;
 
@@ -60,6 +64,9 @@ namespace FileRedundancyRemoverTests
         public void RemoveRedundantFilesFromTargetTest()
         {
             fileManager.RemoveRedundantFilesFromTarget(sourceDirectory.GetFiles(), targetDirectory.GetFiles());
+
+            if (!targetDirectory.GetFiles().Any())
+                Assert.Fail();
 
             var expectedLength = 1;
             var actualLength = targetDirectory.GetFiles().Length;
@@ -73,18 +80,21 @@ namespace FileRedundancyRemoverTests
         {
             fileManager.CopyDirectory(SOURCE_FOLDER_PATH, TARGET_FOLDER_PATH);
 
+            if (!targetDirectory.GetDirectories().Any())
+                Assert.Fail();
+
             var expectedSubDirCount = 1;
             var actualSubDirCount = targetDirectory.GetDirectories()[0].GetDirectories().Length;
 
             var expectedFileCount = 3;
             var actualFileCount = targetDirectory.GetFiles().Length;
 
-            var expectedSubdirFileCount = 1;
-            var actualSubdirFileCount = targetDirectory.GetDirectories()[0].GetFiles().Length;
+            var expectedSubDirFileCount = 1;
+            var actualSubDirFileCount = targetDirectory.GetDirectories()[0].GetFiles().Length;
             
             Assert.AreEqual(expectedSubDirCount, actualSubDirCount);
             Assert.AreEqual(expectedFileCount, actualFileCount);
-            Assert.AreEqual(expectedSubdirFileCount, actualSubdirFileCount);
+            Assert.AreEqual(expectedSubDirFileCount, actualSubDirFileCount);
         }
 
         [TestCleanup]
