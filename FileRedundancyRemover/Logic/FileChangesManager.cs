@@ -47,7 +47,9 @@ namespace FileRedundancyRemover.Logic
 
 
             // add missing files from source to target
-            AddMissingFilesToTarget(sourceFolder, targetFolder);
+            //AddMissingFilesToTarget(sourceFolder, targetFolder);
+
+            CopyDirectory(sourceFolder.FullName, targetFolder.FullName);
         }
 
         public void RemoveRedundantFoldersFromTarget(DirectoryInfo[] foldersInSource, DirectoryInfo[] foldersInTarget)
@@ -88,7 +90,15 @@ namespace FileRedundancyRemover.Logic
             foreach (var file in files)
             {
                 var tempPath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(tempPath, false);
+                try
+                {
+                    file.CopyTo(tempPath, false);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
             }
 
             foreach (var subDirectory in directories)
