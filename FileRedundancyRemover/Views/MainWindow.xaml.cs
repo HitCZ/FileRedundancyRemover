@@ -1,7 +1,7 @@
 ﻿using System.Windows;
-using FileRedundancyRemover.ViewModels;
+using DirectoryEqualizer.ViewModels;
 
-namespace FileRedundancyRemover.Views
+namespace DirectoryEqualizer.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

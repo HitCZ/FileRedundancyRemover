@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace FileRedundancyRemover.Logic
+namespace DirectoryEqualizer.Logic
 {
     public class RelayCommand : ICommand
     {

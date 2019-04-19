@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FileRedundancyRemover.Properties
+namespace DirectoryEqualizer.Properties
 {
 
 

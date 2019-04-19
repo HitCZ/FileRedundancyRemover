@@ -1,13 +1,14 @@
-﻿using FileRedundancyRemover.Annotations;
-using FileRedundancyRemover.Logic.Extensions;
+﻿using DirectoryEqualizer.Logic.Extensions;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Input;
+using DirectoryEqualizer.Annotations;
+using DirectoryEqualizer.Logic;
 using FileRedundancyRemover.Logic;
 
-namespace FileRedundancyRemover.ViewModels
+namespace DirectoryEqualizer.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {

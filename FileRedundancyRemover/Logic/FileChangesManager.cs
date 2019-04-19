@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileRedundancyRemover.Logic
 {
@@ -53,22 +50,17 @@ namespace FileRedundancyRemover.Logic
             AddMissingFilesToTarget(sourceFolder, targetFolder);
         }
 
-        #endregion Public Methods
-
-
-        #region Private Methods
-
-        private void RemoveFoldersFromTarget(DirectoryInfo[] foldersInSource, DirectoryInfo[] foldersInTarget)
+        public void RemoveRedundantFoldersFromTarget(DirectoryInfo[] foldersInSource, DirectoryInfo[] foldersInTarget)
         {
             foreach (var folder in foldersInTarget)
             {
-                if (foldersInSource.Contains(folder))
+                if (foldersInSource.Any(x => x.Name.Equals(folder.Name)))
                     continue;
                 folder.Delete(true);
             }
         }
 
-        private void RemoveFilesFromTarget(FileInfo[] sourceFiles, FileInfo[] targetFiles)
+        public void RemoveRedundantFilesFromTarget(FileInfo[] sourceFiles, FileInfo[] targetFiles)
         {
             var indexesToRemove = targetFiles.Where(x => !sourceFiles.Any(y => y.Name.Equals(x.Name)))
                                   .Select(x => Array.IndexOf(targetFiles, x)).ToList();
@@ -79,7 +71,7 @@ namespace FileRedundancyRemover.Logic
             }
         }
 
-        private void CopyDirectory(string sourceDirName, string destDirName)
+        public void CopyDirectory(string sourceDirName, string destDirName)
         {
             var dirInfo = new DirectoryInfo(sourceDirName);
 
@@ -106,7 +98,7 @@ namespace FileRedundancyRemover.Logic
             }
         }
 
-        private void AddMissingFilesToTarget(DirectoryInfo sourceFolder, DirectoryInfo targetFolder)
+        public void AddMissingFilesToTarget(DirectoryInfo sourceFolder, DirectoryInfo targetFolder)
         {
             var sourceFiles = sourceFolder.GetFiles();
             var targetFiles = targetFolder.GetFiles();
@@ -124,6 +116,6 @@ namespace FileRedundancyRemover.Logic
             }
         }
 
-        #endregion Private Methods
+        #endregion Public Methods
     }
 }

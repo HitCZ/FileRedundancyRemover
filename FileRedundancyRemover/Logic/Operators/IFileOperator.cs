@@ -1,4 +1,4 @@
-﻿namespace FileRedundancyRemover.Logic.Operators
+﻿namespace DirectoryEqualizer.Logic.Operators
 {
     public interface IFileOperator
     {

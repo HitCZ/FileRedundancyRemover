@@ -1,4 +1,4 @@
-﻿namespace FileRedundancyRemover.Logic.Extensions
+﻿namespace DirectoryEqualizer.Logic.Extensions
 {
     public static class StringExtensions
     {
