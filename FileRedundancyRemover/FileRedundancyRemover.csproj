@@ -64,7 +64,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Logic\Enums\Operation.cs" />
     <Compile Include="Logic\Extensions\StringExtensions.cs" />
+    <Compile Include="Logic\FileChangesManager.cs" />
+    <Compile Include="Logic\Operators\IFileOperator.cs" />
     <Compile Include="Logic\RelayCommand.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

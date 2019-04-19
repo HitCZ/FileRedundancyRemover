@@ -47,7 +47,6 @@ namespace FileRedundancyRemover.ViewModels
             }
         }
 
-
         #endregion Properties
 
         #region Commands
@@ -89,7 +88,8 @@ namespace FileRedundancyRemover.ViewModels
 
         private void ConfirmCommandExecute()
         {
-            throw new NotImplementedException();
+            var manager = new FileChangesManager();
+            manager.EqualizeFolders(SourcePath, TargetPath);
         }
 
         private bool ConfirmCommandCanExecute() => !sourcePath.IsNullOrEmpty() && !targetPath.IsNullOrEmpty();
@@ -99,7 +99,7 @@ namespace FileRedundancyRemover.ViewModels
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
