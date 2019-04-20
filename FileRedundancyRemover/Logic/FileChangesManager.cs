@@ -1,55 +1,81 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using FileRedundancyRemover.Properties;
 
 namespace FileRedundancyRemover.Logic
 {
     public class FileChangesManager
     {
-        #region Fields
-
-        private string sourcePath;
-        private string targetPath;
-
-        #endregion Fields
-
-        #region Properties
-
-
-
-        #endregion Properties
-
-        #region Constructor
-
-        #endregion Constructor
+        public Action<ProgressState> ProgressChangedAction { get; set; }
 
         #region Public Methods
 
-        public void EqualizeFolders(string source, string target)
+        public async Task EqualizeFoldersAsync(string source, string target)
         {
             var sourceFolder = new DirectoryInfo(source);
             var targetFolder = new DirectoryInfo(target);
-            var sourceFolderDirectories = sourceFolder.GetDirectories();
-            var targetFolderDirectories = targetFolder.GetDirectories();
 
-            // remove redundant folders from target
-            //RemoveFoldersFromTarget(sourceFolderDirectories, targetFolderDirectories);
+            InvokeProgressChanged(0, Strings.MSG_RemovingRedundantFolders);
+            await Task.Run(() => RemoveRedundantFoldersAndSubFolders(sourceFolder, targetFolder));
 
-            // remove folders from subfolders
+            InvokeProgressChanged(33, Strings.MSG_RemovingRedundantFiles);
+            await Task.Run(() => RemoveRedundantFilesFromFoldersAndSubFolders(sourceFolder, targetFolder));
 
-            // remove redundant files from target
-            //RemoveFilesFromTarget(sourceFolder.GetFiles(), targetFolder.GetFiles());
+            InvokeProgressChanged(66, Strings.MSG_CopyingFiles);
+            await Task.Run(() => CopyDirectory(sourceFolder.FullName, targetFolder.FullName));
 
-            // copy folders to target
-            //CopyDirectory(source, target);
+            InvokeProgressChanged(100, Strings.MSG_ProcessComplete);
+        }
 
-            // check if folder isn't missing any files
+        public void RemoveRedundantFilesFromFoldersAndSubFolders(DirectoryInfo sourceFolder, DirectoryInfo targetFolder)
+        {
+            var sourceFiles = sourceFolder.GetFiles();
+            var targetFiles = targetFolder.GetFiles();
+            var sourceSubDirs = sourceFolder.GetDirectories();
+            var targetSubDirs = targetFolder.GetDirectories();
 
+            RemoveRedundantFilesFromTarget(sourceFiles, targetFiles);
 
-            // add missing files from source to target
-            //AddMissingFilesToTarget(sourceFolder, targetFolder);
+            foreach (var subDir in sourceSubDirs)
+            {
+                var targetSubDir = targetSubDirs.FirstOrDefault(x => x.Name.Equals(subDir.Name));
 
-            CopyDirectory(sourceFolder.FullName, targetFolder.FullName);
+                if (targetSubDir is null)
+                    continue;
+
+                RemoveRedundantFilesFromTarget(subDir.GetFiles(), targetSubDir.GetFiles());
+                RemoveRedundantFilesFromFoldersAndSubFolders(subDir, targetSubDir);
+            }
+        }
+
+        public void RemoveRedundantFoldersAndSubFolders(DirectoryInfo sourceFolder, DirectoryInfo targetFolder)
+        {
+            var sourceSubDirs = sourceFolder.GetDirectories();
+            var targetSubDirs = targetFolder.GetDirectories();
+
+            // remove unwanted folders in current folder
+            RemoveRedundantFoldersFromTarget(sourceSubDirs, targetSubDirs);
+
+            foreach (var folder in sourceSubDirs)
+            {
+                var sourceSubFolders = folder.GetDirectories();
+                var targetSubFolders = targetSubDirs.First(x => x.Name == folder.Name).GetDirectories();
+
+                RemoveRedundantFoldersFromTarget(folder.GetDirectories(), targetSubFolders);
+
+                // recursively remove all unwanted folders in every subfolder
+                foreach (var sourceSubFolder in sourceSubFolders)
+                {
+                    var tmp = targetSubFolders.FirstOrDefault(x => x.Name == sourceSubFolder.Name);
+
+                    if (tmp is null)
+                        continue;
+
+                    RemoveRedundantFoldersAndSubFolders(sourceSubFolder, tmp);
+                }
+            }
         }
 
         public void RemoveRedundantFoldersFromTarget(DirectoryInfo[] foldersInSource, DirectoryInfo[] foldersInTarget)
@@ -108,24 +134,20 @@ namespace FileRedundancyRemover.Logic
             }
         }
 
-        public void AddMissingFilesToTarget(DirectoryInfo sourceFolder, DirectoryInfo targetFolder)
-        {
-            var sourceFiles = sourceFolder.GetFiles();
-            var targetFiles = targetFolder.GetFiles();
+        #endregion Public Methods
 
-            if (!sourceFiles.Any())
-                return; 
-            
-            var indexesToCopy = sourceFiles.Where(x => !targetFiles.Any(y => y.Name.Equals(x.Name)))
-                                .Select(x => Array.IndexOf(sourceFiles, x)).ToList();
-            
-            foreach (var index in indexesToCopy)
+        #region Private Methods
+
+        private void InvokeProgressChanged(double progress, string text)
+        {
+            var progressState = new ProgressState
             {
-                var path = Path.Combine(targetFolder.FullName, sourceFiles[index].Name);
-                sourceFiles[index].CopyTo(path);
-            }
+                Progress = progress,
+                ProgressText = text
+            };
+            ProgressChangedAction.Invoke(progressState);
         }
 
-        #endregion Public Methods
+        #endregion Private Methods
     }
 }

@@ -1,14 +1,14 @@
-﻿using DirectoryEqualizer.Logic.Extensions;
-using System;
+﻿using DirectoryEqualizer.Annotations;
+using DirectoryEqualizer.Logic;
+using DirectoryEqualizer.Logic.Extensions;
+using FileRedundancyRemover.Logic;
+using FileRedundancyRemover.Views;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Input;
-using DirectoryEqualizer.Annotations;
-using DirectoryEqualizer.Logic;
-using FileRedundancyRemover.Logic;
 
-namespace DirectoryEqualizer.ViewModels
+namespace FileRedundancyRemover.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
@@ -87,10 +87,15 @@ namespace DirectoryEqualizer.ViewModels
                 TargetPath = dialog.SelectedPath;
         }
 
-        private void ConfirmCommandExecute()
+        private async void ConfirmCommandExecute()
         {
             var manager = new FileChangesManager();
-            manager.EqualizeFolders(SourcePath, TargetPath);
+
+            var progressView = new ProgressView();
+            manager.ProgressChangedAction = progressView.OnProgressChanged;
+            progressView.Show();
+
+            await manager.EqualizeFoldersAsync(SourcePath, TargetPath);
         }
 
         private bool ConfirmCommandCanExecute() => !sourcePath.IsNullOrEmpty() && !targetPath.IsNullOrEmpty();
